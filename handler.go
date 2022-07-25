@@ -29,7 +29,7 @@ func getDocuments(w http.ResponseWriter, r *http.Request) {
   res, err := json.Marshal(Articles{[]Article{{"title"}}})
   if err != nil {
     w.WriteHeader(http.StatusInternalServerError)
-    fmt.Fprintf(w, "An error occurred")
+    fmt.Fprintf(w, "Unknown error occurred")
     return
   }
 
@@ -39,8 +39,28 @@ func getDocuments(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func postDocuments(w http.ResponseWriter, r *http.Request) {
-  w.WriteHeader(http.StatusOK)
+type RequestBody struct {
+  Title string `json:"title"`
+}
 
-  fmt.Fprintf(w, "create document")
+type CreateDocumentResponse struct {
+  Title string `json:"title"`
+}
+
+func postDocuments(w http.ResponseWriter, r *http.Request) {
+  reqBody := RequestBody{}
+  dec := json.NewDecoder(r.Body)
+  err := dec.Decode(&reqBody)
+  if err != nil {
+    w.WriteHeader(http.StatusBadRequest)
+    fmt.Fprintf(w, "interface { title: string }")
+    return
+  }
+
+  resBody := CreateDocumentResponse{ reqBody.Title }
+  res, _ := json.Marshal(resBody)
+
+  w.Header().Set("Content-Type", "application/json")
+  w.WriteHeader(http.StatusOK)
+  w.Write(res)
 }
