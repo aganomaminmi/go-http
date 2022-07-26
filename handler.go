@@ -26,7 +26,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getDocuments(w http.ResponseWriter, r *http.Request) {
-  res, err := json.Marshal(Articles{[]Article{{"title"}}})
+  res, err := json.Marshal(Articles{[]Article{{ Title: "title" }}})
   if err != nil {
     w.WriteHeader(http.StatusInternalServerError)
     fmt.Fprintf(w, "Unknown error occurred")
@@ -57,8 +57,13 @@ func postDocuments(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  resBody := CreateDocumentResponse{ reqBody.Title }
-  res, _ := json.Marshal(resBody)
+  resBody := CreateDocumentResponse{ Title: reqBody.Title }
+  res, err := json.Marshal(resBody)
+  if err != nil {
+    w.WriteHeader(http.StatusInternalServerError)
+    fmt.Fprintf(w, "Unknown error occurred")
+    return
+  }
 
   w.Header().Set("Content-Type", "application/json")
   w.WriteHeader(http.StatusOK)
